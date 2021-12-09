@@ -1,11 +1,8 @@
-{% test relationships_where(model, column_name, to, field, from_condition="1=1", to_condition="1=1") %}
-  {{ return(adapter.dispatch('test_relationships_where', 'cc_dbt_utils')(model, column_name, to, field, from_condition, to_condition)) }}
-{% endtest %}
+{% macro test_relationships_where(model, to, field) %}
 
-{% macro default__test_relationships_where(model, column_name, to, field, from_condition="1=1", to_condition="1=1") %}
-
-{# T-SQL has no boolean data type so we use 1=1 which returns TRUE #}
-{# ref https://stackoverflow.com/a/7170753/3842610 #}
+{% set column_name = kwargs.get('column_name', kwargs.get('from')) %}
+{% set from_condition = kwargs.get('from_condition', "true") %}
+{% set to_condition = kwargs.get('to_condition', "true") %}
 
 with left_table as (
 
@@ -46,6 +43,6 @@ exceptions as (
 
 )
 
-select * from exceptions
+select count(*) from exceptions
 
 {% endmacro %}

@@ -1,8 +1,4 @@
 {% macro nullcheck(cols) %}
-    {{ return(adapter.dispatch('nullcheck', 'cc_dbt_utils')(cols)) }}
-{% endmacro %}
-
-{% macro default__nullcheck(cols) %}
 {%- for col in cols %}
 
     {% if col.is_string() -%}

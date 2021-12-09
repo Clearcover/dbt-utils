@@ -1,24 +1,13 @@
-{% test recency(model, field, datepart, interval) %}
-  {{ return(adapter.dispatch('test_recency', 'cc_dbt_utils')(model, field, datepart, interval)) }}
-{% endtest %}
+{% macro test_recency(model, datepart, interval) %}
 
-{% macro default__test_recency(model, field, datepart, interval) %}
-
-{% set threshold = cc_dbt_utils.dateadd(datepart, interval * -1, cc_dbt_utils.current_timestamp()) %}
-
-with recency as (
-
-    select max({{field}}) as most_recent
-    from {{ model }}
-
-)
+{% set column_name = kwargs.get('column_name', kwargs.get('field')) %}
 
 select
-
-    most_recent,
-    {{ threshold }} as threshold
-
-from recency
-where most_recent < {{ threshold }}
+    case when count(*) > 0 then 0
+    else 1
+    end as error_result
+from {{model}}
+where {{column_name}} >=
+    {{cc_dbt_utils.dateadd(datepart, interval * -1, cc_dbt_utils.current_timestamp())}}
 
 {% endmacro %}

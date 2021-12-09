@@ -1,5 +1,5 @@
 {% macro except() %}
-  {{ return(adapter.dispatch('except', 'cc_dbt_utils')()) }}
+  {{ adapter.dispatch('except', packages = cc_dbt_utils._get_utils_namespaces())() }}
 {% endmacro %}
 
 

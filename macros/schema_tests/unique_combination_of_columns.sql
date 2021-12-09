@@ -1,14 +1,12 @@
-{% test unique_combination_of_columns(model, combination_of_columns, quote_columns=false) %}
-  {{ return(adapter.dispatch('test_unique_combination_of_columns', 'cc_dbt_utils')(model, combination_of_columns, quote_columns)) }}
-{% endtest %}
+{% macro test_unique_combination_of_columns(model, quote_columns = false) %}
 
-{% macro default__test_unique_combination_of_columns(model, combination_of_columns, quote_columns=false) %}
+{%- set columns = kwargs.get('combination_of_columns', kwargs.get('arg')) %}
 
 {% if not quote_columns %}
-    {%- set column_list=combination_of_columns %}
+    {%- set column_list=columns %}
 {% elif quote_columns %}
     {%- set column_list=[] %}
-        {% for column in combination_of_columns -%}
+        {% for column in columns -%}
             {% set column_list = column_list.append( adapter.quote(column) ) %}
         {%- endfor %}
 {% else %}
@@ -25,12 +23,13 @@ with validation_errors as (
     select
         {{ columns_csv }}
     from {{ model }}
+
     group by {{ columns_csv }}
     having count(*) > 1
 
 )
 
-select *
+select count(*)
 from validation_errors
 
 
