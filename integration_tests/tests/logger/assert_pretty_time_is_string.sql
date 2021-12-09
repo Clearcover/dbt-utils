@@ -1,4 +1,4 @@
-{% if dbt_utils.slugify('!Hell0 world-hi') == 'hell0_world_hi' %}
+{% if dbt_utils.pretty_time() is string %}
     {# Return 0 rows for the test to pass #}
     select 1 limit 0
 {% else %}

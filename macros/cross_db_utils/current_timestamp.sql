@@ -1,5 +1,5 @@
 {% macro current_timestamp() -%}
-  {{ return(adapter.dispatch('current_timestamp', 'cc_dbt_utils')()) }}
+  {{ adapter.dispatch('current_timestamp', packages = cc_dbt_utils._get_utils_namespaces())() }}
 {%- endmacro %}
 
 {% macro default__current_timestamp() %}
@@ -17,7 +17,7 @@
 
 
 {% macro current_timestamp_in_utc() -%}
-  {{ return(adapter.dispatch('current_timestamp_in_utc', 'cc_dbt_utils')()) }}
+  {{ adapter.dispatch('current_timestamp_in_utc', packages = cc_dbt_utils._get_utils_namespaces())() }}
 {%- endmacro %}
 
 {% macro default__current_timestamp_in_utc() %}
@@ -30,9 +30,4 @@
 
 {% macro postgres__current_timestamp_in_utc() %}
     (current_timestamp at time zone 'utc')::{{cc_dbt_utils.type_timestamp()}}
-{% endmacro %}
-
-{# redshift should use default instead of postgres #}
-{% macro redshift__current_timestamp_in_utc() %}
-    {{ return(dbt_utils.default__current_timestamp_in_utc()) }}
 {% endmacro %}

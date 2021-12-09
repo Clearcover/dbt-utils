@@ -1,22 +1,22 @@
-{% test expression_is_true(model, expression, column_name=None, condition='1=1') %}
-{# T-SQL has no boolean data type so we use 1=1 which returns TRUE #}
-{# ref https://stackoverflow.com/a/7170753/3842610 #}
-  {{ return(adapter.dispatch('test_expression_is_true', 'cc_dbt_utils')(model, expression, column_name, condition)) }}
-{% endtest %}
+{% macro test_expression_is_true(model, condition='true') %}
 
-{% macro default__test_expression_is_true(model, expression, column_name, condition) %}
+{% set expression = kwargs.get('expression', kwargs.get('arg')) %}
 
 with meet_condition as (
+
     select * from {{ model }} where {{ condition }}
+
+),
+validation_errors as (
+
+    select
+        *
+    from meet_condition
+    where not({{expression}})
+
 )
 
-select
-    *
-from meet_condition
-{% if column_name is none %}
-where not({{ expression }})
-{%- else %}
-where not({{ column_name }} {{ expression }})
-{%- endif %}
+select count(*)
+from validation_errors
 
 {% endmacro %}

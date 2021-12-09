@@ -48,6 +48,9 @@ If applicable, add screenshots or log output to help explain your problem.
 <output goes here>
 ```
 
+**The operating system you're using:**
+
+**The output of `python --version`:**
 
 ### Additional context
 <!---
