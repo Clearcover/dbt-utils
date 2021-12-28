@@ -4,7 +4,11 @@ version: 2
 jobs:
   build:
     docker:
+<<<<<<< HEAD
       - image: circleci/python:3.6.3-stretch
+=======
+      - image: cimg/python:3.9.9
+>>>>>>> 68b4b4dadc20cd5cc2a894bd2ad62aa1b8176dc7
       - image: circleci/postgres:9.6.5-alpine-ram
 
     steps:
@@ -28,14 +32,46 @@ jobs:
             POSTGRES_TEST_DBNAME: circle_test
           command: ./run_test.sh postgres
 
+<<<<<<< HEAD
+=======
+  integration-redshift:
+    docker:
+      - image: cimg/python:3.9.9
+    steps:
+      - checkout
+>>>>>>> 68b4b4dadc20cd5cc2a894bd2ad62aa1b8176dc7
       - run:
           name: "Run Tests - Redshift"
           command: ./run_test.sh redshift
 
+<<<<<<< HEAD
       - run:
           name: "Run Tests - Snowflake"
           command: ./run_test.sh snowflake
 
+=======
+  integration-snowflake:
+    docker:
+      - image: cimg/python:3.9.9
+    steps:
+      - checkout
+      - run:
+          name: "Run Tests - Snowflake"
+          command: ./run_test.sh snowflake
+      - store_artifacts:
+          path: ./logs          
+  
+  integration-bigquery:
+    environment:
+      BIGQUERY_SERVICE_KEY_PATH: "/home/circleci/bigquery-service-key.json"
+    docker:
+      - image: cimg/python:3.9.9
+    steps:
+      - checkout
+      - run:
+          name: "Set up credentials"
+          command: echo $BIGQUERY_SERVICE_ACCOUNT_JSON > ${HOME}/bigquery-service-key.json
+>>>>>>> 68b4b4dadc20cd5cc2a894bd2ad62aa1b8176dc7
       - run:
           name: "Run Tests - BigQuery"
           environment:

@@ -1,9 +1,70 @@
-This [dbt](https://github.com/fishtown-analytics/dbt) package contains macros that can be (re)used across dbt projects.
+This [dbt](https://github.com/dbt-labs/dbt) package contains macros that can be (re)used across dbt projects.
 
 ## Installation Instructions
-Check [dbt Hub](https://hub.getdbt.com/fishtown-analytics/dbt_utils/latest/) for the latest installation instructions, or [read the docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
+Check [dbt Hub](https://hub.getdbt.com/dbt-labs/dbt_utils/latest/) for the latest installation instructions, or [read the docs](https://docs.getdbt.com/docs/package-management) for more information on installing packages.
 
 ----
+## Contents
+
+**[Schema tests](#schema-tests)**
+  - [equal_rowcount](#equal_rowcount-source)
+  - [equality](#equality-source)
+  - [expression_is_true](#expression_is_true-source)
+  - [recency](#recency-source)
+  - [at_least_one](#at_least_one-source)
+  - [not_constant](#not_constant-source)
+  - [cardinality_equality](#cardinality_equality-source)
+  - [unique_where](#unique_where-source)
+  - [not_null_where](#not_null_where-source)
+  - [not_null_proportion](#not_null_proportion-source)
+  - [relationships_where](#relationships_where-source)
+  - [mutually_exclusive_ranges](#mutually_exclusive_ranges-source)
+  - [unique_combination_of_columns](#unique_combination_of_columns-source)
+  - [accepted_range](#accepted_range-source)
+
+**[Macros](#macros)**
+
+- [Introspective macros](#introspective-macros):
+    - [get_column_values](#get_column_values-source)
+    - [get_relations_by_pattern](#get_relations_by_pattern-source)
+    - [get_relations_by_prefix](#get_relations_by_prefix-source)
+    - [get_query_results_as_dict](#get_query_results_as_dict-source)
+
+- [SQL generators](#sql-generators)
+    - [date_spine](#date_spine-source)
+    - [haversine_distance](#haversine_distance-source)
+    - [group_by](#group_by-source)
+    - [star](#star-source)
+    - [union_relations](#union_relations-source)
+    - [generate_series](#generate_series-source)
+    - [surrogate_key](#surrogate_key-source)
+    - [safe_add](#safe_add-source)
+    - [pivot](#pivot-source)
+    - [unpivot](#unpivot-source)
+
+- [Web macros](#web-macros)
+    - [get_url_parameter](#get_url_parameter-source)
+    - [get_url_host](#get_url_host-source)
+    - [get_url_path](#get_url_path-source)
+
+- [Cross-database macros](#cross-database-macros):
+    - [current_timestamp](#current_timestamp-source)
+    - [dateadd](#dateadd-source)
+    - [datediff](#datediff-source)
+    - [split_part](#split_part-source)
+    - [last_day](#last_day-source)
+    - [width_bucket](#width_bucket-source)
+
+- [Jinja Helpers](#jinja-helpers)
+    - [pretty_time](#pretty_time-source)
+    - [pretty_log_format](#pretty_log_format-source)
+    - [log_info](#log_info-source)
+
+[Materializations](#materializations):
+- [insert_by_period](#insert_by_period-source)
+
+[Operations](#operations):
+- [compare_objects](#compare_objects-source)
 
 ## Macros
 
@@ -269,7 +330,7 @@ models:
 
 ```
 
-#### unique_where ([source](macros/schema_tests/unique_where.sql))
+#### unique_where ([source](macros/schema_tests/test_unique_where.sql))
 This test validates that there are no duplicate values present in a field for a subset of rows by specifying a `where` clause.
 
 Usage:
@@ -285,7 +346,7 @@ models:
               where: "_deleted = false"
 ```
 
-#### not_null_where ([source](macros/schema_tests/not_null_where.sql))
+#### not_null_where ([source](macros/schema_tests/test_not_null_where.sql))
 This test validates that there are no null values present in a column for a subset of rows by specifying a `where` clause.
 
 Usage:
@@ -301,6 +362,41 @@ models:
               where: "_deleted = false"
 ```
 
+<<<<<<< HEAD
+=======
+#### not_null_proportion ([source](macros/schema_tests/not_null_proportion.sql))
+This test validates that the proportion of non-null values present in a column is between a specified range [`at_least`, `at_most`] where `at_most` is an optional argument (default: `1.0`).
+
+**Usage:**
+```yaml
+version: 2
+
+models:
+  - name: my_model
+    columns:
+      - name: id
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.95
+```
+
+#### not_accepted_values ([source](macros/schema_tests/not_accepted_values.sql))
+This test validates that there are no rows that match the given values.
+
+Usage:
+```yaml
+version: 2
+
+models:
+  - name: my_model
+    columns:
+      - name: city
+        tests:
+          - dbt_utils.not_accepted_values:
+              values: ['Barcelona', 'New York']
+```
+
+>>>>>>> 68b4b4dadc20cd5cc2a894bd2ad62aa1b8176dc7
 #### relationships_where ([source](macros/schema_tests/relationships_where.sql))
 This test validates the referential integrity between two relations (same as the core relationships schema test) with an added predicate to filter out some rows from the test. This is useful to exclude records such as test entities, rows created in the last X minutes/hours to account for temporary gaps due to ETL limitations, etc.
 
@@ -535,7 +631,7 @@ Usage:
 ```
 
 #### star ([source](macros/sql/star.sql))
-This macro generates a list of all fields that exist in the `from` relation, excluding any fields listed in the `except` argument. The construction is identical to `select * from {{ref('my_model')}}`, replacing star (`*`) with the star macro. This macro also has an optional `relation_alias` argument that will prefix all generated fields with an alias.
+This macro generates a list of all fields that exist in the `from` relation, excluding any fields listed in the `except` argument. The construction is identical to `select * from {{ref('my_model')}}`, replacing star (`*`) with the star macro. This macro also has an optional `relation_alias` argument that will prefix all generated fields with an alias (`relation_alias`.`field_name`). The macro also has optional `prefix` and `suffix` arguments, which will be appropriately concatenated to each field name in the output (`prefix` ~ `field_name` ~ `suffix`).
 
 Usage:
 ```

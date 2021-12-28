@@ -51,20 +51,9 @@ b_minus_a as (
 
 unioned as (
 
-    select * from a_minus_b
+    select 'a_minus_b' as which_diff, a_minus_b.* from a_minus_b
     union all
-    select * from b_minus_a
-
-),
-
-final as (
-
-    select (select count(*) from unioned) +
-        (select abs(
-            (select count(*) from a_minus_b) -
-            (select count(*) from b_minus_a)
-            ))
-        as count
+    select 'b_minus_a' as which_diff, b_minus_a.* from b_minus_a
 
 )
 
