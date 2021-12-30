@@ -1,4 +1,8 @@
 {% macro get_audit_schema() %}
+    {{ return(adapter.dispatch('get_audit_schema', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__get_audit_schema() %}
 
     {%- if target.name in ['prod', 'uat'] -%}
         {{ return('dbt_logging') }}      
@@ -9,6 +13,10 @@
 {% endmacro %}
 
 {% macro get_audit_relation() %}
+    {{ return(adapter.dispatch('get_audit_relation', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__get_audit_relation() %}
 
     {%- set audit_schema=cc_dbt_utils.get_audit_schema() -%}
 
@@ -26,6 +34,10 @@
 
 
 {% macro log_audit_event(event_data, created_at) %}
+    {{ return(adapter.dispatch('log_audit_event', 'cc_dbt_utils')(event_data, created_at)) }}
+{% endmacro %}
+
+{% macro default__log_audit_event(event_data, created_at) %}
 
     insert into {{ cc_dbt_utils.get_audit_relation() }} (
         event_data,
@@ -45,11 +57,19 @@
 
 
 {% macro create_audit_schema() %}
+    {{ return(adapter.dispatch('create_audit_schema', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__create_audit_schema() %}
     create schema if not exists {{ cc_dbt_utils.get_audit_schema() }}
 {% endmacro %}
 
 
 {% macro create_audit_log_table() %}
+    {{ return(adapter.dispatch('create_audit_log_table', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__create_audit_log_table() %}
 
     {% set required_columns = [
        ["event_data", "varchar(16777216)"],
@@ -100,6 +120,10 @@
 
 
 {% macro log_run_end_event(results, flags, target) %}
+    {{ return(adapter.dispatch('log_run_end_event', 'cc_dbt_utils')(results, flags, target)) }}
+{% endmacro %}
+
+{% macro default__log_run_end_event(results, flags, target) %}
     {% set run_audit=cc_dbt_utils.get_run_audit(results, flags, target) %}
     
     {{ cc_dbt_utils.log_audit_event(run_audit) }}

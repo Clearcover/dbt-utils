@@ -1,4 +1,8 @@
 {%- macro surrogate_key(columns, normalize_case = none) -%}
+    {{ return(adapter.dispatch('surrogate_key', 'cc_dbt_utils')(columns, normalize_case)) }}
+{% endmacro %}
+
+{%- macro default__surrogate_key(columns, normalize_case = none) -%}
 
 {% set fields = [] %}
 

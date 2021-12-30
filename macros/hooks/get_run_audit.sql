@@ -1,5 +1,8 @@
-
 {% macro get_run_audit(results, flags, target) %}
+    {{ return(adapter.dispatch('get_run_audit', 'cc_dbt_utils')(results, flags, target)) }}
+{% endmacro %}
+
+{% macro default__get_run_audit(results, flags, target) %}
 {#
 This macro gets back a dictionary like:
     {
@@ -87,6 +90,10 @@ select 1;
 {% endmacro %}
 
 {% macro get_target_keys() %}
+    {{ return(adapter.dispatch('get_target_keys', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__get_target_keys() %}
 {# Abstracting this into a macro so people can override it in their own projects #}
     {{ return([
         'name',

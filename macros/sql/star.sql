@@ -14,6 +14,10 @@
     -#}
 
 {% macro star(from, relation_alias=False, except=[], contains_item = none, include_or_exclude_contains_item = none, separator = ',', column_prefix = none) -%}
+    {{ return(adapter.dispatch('star', 'cc_dbt_utils')(from, relation_alias, except, contains_item, include_or_exclude_contains_item, separator, column_prefix)) }}
+{% endmacro %}
+
+{% macro default__star(from, relation_alias=False, except=[], contains_item = none, include_or_exclude_contains_item = none, separator = ',', column_prefix = none) -%}
     
     {%- do cc_dbt_utils._is_relation(from, 'star') -%}
 

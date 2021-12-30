@@ -14,18 +14,29 @@ dbt run-operation compare_objects --args "{comparison_schema : dbt_kevin, object
 dbt run-operation compare_objects --args "{comparison_schema: dbt_kevin, object_name: claim_transaction_calendar_date, primary_key : 'claim_uuid || claim_coverage_type ||  calendar_date', sql_where: calendar_date < '2020-05-01'}"
 
 -#}
-
 {% macro get_comparison_schema() %}
+    {{ return(adapter.dispatch('get_comparison_schema', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__get_comparison_schema() %}
 
 	{{ return(target.schema) }}
 
 {% endmacro %}
 
 {% macro create_comparison_schema() %}
+    {{ return(adapter.dispatch('create_comparison_schema', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__create_comparison_schema() %}
 	create schema if not exists {{ get_comparison_schema() }}
 {% endmacro %}
 
 {% macro get_comparison_results_relation() %}
+    {{ return(adapter.dispatch('get_comparison_results_relation', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__get_comparison_results_relation() %}
 
 	{%- set comp_schema=get_comparison_schema() -%}
 
@@ -42,6 +53,10 @@ dbt run-operation compare_objects --args "{comparison_schema: dbt_kevin, object_
 {% endmacro %}
 
 {% macro create_comparison_results_table() -%}
+    {{ return(adapter.dispatch('create_comparison_results_table', 'cc_dbt_utils')()) }}
+{% endmacro -%}
+
+{% macro default__create_comparison_results_table() %}
 
 	{% set required_columns = [
 	   ["invocation_id", "varchar(512)"],
@@ -110,13 +125,21 @@ dbt run-operation compare_objects --args "{comparison_schema: dbt_kevin, object_
 {%- endmacro %}
 
 {% macro drop_comparison_results_relation() %}
+    {{ return(adapter.dispatch('drop_comparison_results_relation', 'cc_dbt_utils')()) }}
+{% endmacro %}
+
+{% macro default__drop_comparison_results_relation() %}
 		{% set drop_table_sql %}
 			drop table if exists {{ get_comparison_results_relation() }}
 		{% endset %}
 		{% do run_query(drop_table_sql) %}
 {% endmacro %}
 
-{% macro log_comparison_results(invocation_id,schema_name, relation_name, column_name, match_status, counts, query) %}
+{% macro log_comparison_results(invocation_id, schema_name, relation_name, column_name, match_status, counts, query) %}
+    {{ return(adapter.dispatch('log_comparison_results', 'cc_dbt_utils')(invocation_id, schema_name, relation_name, column_name, match_status, counts, query)) }}
+{% endmacro %}
+
+{% macro default__log_comparison_results(invocation_id, schema_name, relation_name, column_name, match_status, counts, query) %}
 
 	insert into {{ get_comparison_results_relation() }} (
 		invocation_id,
@@ -144,8 +167,11 @@ dbt run-operation compare_objects --args "{comparison_schema: dbt_kevin, object_
 
 {% endmacro %}
 
+{% macro compare_objects( comparison_schema, object_name, primary_key, prod_database = 'ANALYTICS_DW', prod_schema = 'ANALYSIS', sql_where = none) %}
+    {{ return(adapter.dispatch('compare_objects', 'cc_dbt_utils')(comparison_schema, object_name, primary_key, prod_database, prod_schema, sql_where)) }}
+{% endmacro %}
 
-{% macro compare_objects( comparison_schema
+{% macro default__compare_objects( comparison_schema
 						  , object_name
 						  , primary_key
 						  , prod_database = 'ANALYTICS_DW'
