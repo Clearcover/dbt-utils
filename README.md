@@ -66,6 +66,9 @@ For compatibility details between versions of dbt-core and dbt-utils, [see this 
 [Materializations](#materializations):
 - [insert_by_period](#insert_by_period-source)
 
+[Operations](#operations):
+- [compare_objects](#compare_objects-source)
+
 ---
 ### Schema Tests
 #### equal_rowcount ([source](macros/schema_tests/equal_rowcount.sql))
@@ -1112,6 +1115,24 @@ models:
 A useful workaround is to change the above post-hook to:
 ```yaml
         post-hook: "grant select on {{ this.schema }}.{{ this.name }} to db_reader"
+```
+### Operations
+Self contained procedures that allow us to affect data or run data-related operations
+
+#### compare_objects ([source](macros/operations/compare_objects.sql))
+This macro generates a result set comparing value diffs across two version of the same model.
+
+- The `comparison_schema` argument is required and takes in the schema where your development model deployed.
+- The `object_name` argument is required and takes in the name of the model in question.
+- The `primary_key` argument is required and takes in the column name of the primary key (can also be a concatenation of multiple fields)
+- The `prod_database` argument is required and defaulted to *ANALYTICS_DW*, takes in the database name where the original model exists
+- The `prod_schema` argument is required and defaulted to *ANALYSIS*, takes in the schema name where the original model exists
+- The `sql_where` argument is not required, but takes in a condition (or set of conditions) to filter down both the prod and comparison object datasets
+
+Usage:
+```
+dbt run-operation compare_objects --args "{comparison_schema : dbt_kevin, object_name: claim_transaction_calendar_date, primary_key : 'claim_uuid || claim_coverage_type ||  calendar_date', sql_where: calendar_date < '2020-08-15'}"
+
 ```
 
 ----
