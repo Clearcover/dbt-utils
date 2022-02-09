@@ -41,12 +41,15 @@ This macro gets back a dictionary like:
         {% set model_result={} %}
         -- Get the materelizaed type of our model, View, Incremental etc.
         {% set materialization=config.get("materialized")%}
-
+        {% set warehouse=config.get("snowflake_warehouse")%}
+        
         {% do model_result.update({'name': result.node.name}) %}
         {% do model_result.update({'package': result.node.package_name}) %}
         -- Schema the model belongs to
         {% do model_result.update({'schema': result.node.schema}) %}
         {% do model_result.update({'materialized': materialization}) %}
+        {% do model_result.update({'warehouse': warehouse}) %}
+        {% do model_result.update({'invocation_id': invocation_id}) %}
 
         {% for timing in result.timing %}
             {% if timing['name'] == 'execute' %}
