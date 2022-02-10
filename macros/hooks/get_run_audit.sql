@@ -48,9 +48,10 @@ This macro gets back a dictionary like:
         -- Schema the model belongs to
         {% do model_result.update({'schema': result.node.schema}) %}
         {% do model_result.update({'materialized': materialization}) %}
-        {% do model_result.update({'warehouse': warehouse}) %}
+        {% do model_result.update({'failures': result.failures or ''}) %}
+        {% do model_result.update({'warehouse': warehouse or ''}) %}
         {% do model_result.update({'invocation_id': invocation_id}) %}
-
+        
         {% for timing in result.timing %}
             {% if timing['name'] == 'execute' %}
                 {% set timing_result={} %}
