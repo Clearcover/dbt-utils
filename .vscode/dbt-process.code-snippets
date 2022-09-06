@@ -1,0 +1,203 @@
+{
+    "block": {
+        "prefix": "dbt-block",
+        "body": [
+            "{%- block ${1:name} -%}",
+            "  $2",
+            "{%- endblock -%}"
+        ],
+        "description": "Block"
+    },
+    "inline block": {
+        "prefix": "dbt-inblock",
+        "body": [
+            "{%- $1 -%}"
+        ],
+        "description": "inline block"
+    },
+    "Comment": {
+        "prefix": "dbt-comment",
+        "body": [
+            "{#- $1 -#}"
+        ],
+        "description": "inline comment"
+    },
+    "Call a Variable": {
+        "prefix": "dbt-var",
+        "body":[
+        "{{ var(\"${1:var_name}\") }}"
+        ],
+        "description": "call a variable"
+    },
+    "Do": {
+        "prefix": "dbt-do",
+        "body": [
+            "{%- do $1 -%}"
+        ],
+        "description": "jinja do"
+    },
+    "Filter": {
+        "prefix": "dbt-filter",
+        "body": [
+            "{%- filter ${1:filter} -%}",
+            "  $2",
+            "{%- endfilter -%}"
+        ],
+        "description": "jinja filter"
+    },
+    "For": {
+        "prefix": "dbt-for",
+        "body": [
+            "{%- for ${1:item} in ${2:sequence} -%}",
+            "  $3",
+            "{%- endfor -%}"
+        ],
+        "description": "jinja for"
+    },
+    "If": {
+        "prefix": "dbt-if",
+        "body": [
+            "{%- if ${1:expr} -%}",
+            "  $2",
+            "{%- endif -%}"
+        ],
+        "description": "jinja if"
+    },
+    "Macro": {
+        "prefix": "dbt-macro",
+        "body": [
+            "{% macro ${1:name}(${2:args}) %}",
+            "  $3",
+            "{% endmacro %}"
+        ],
+        "description": "dbt macro stub"
+    },
+    "set variable": {
+        "prefix": "dbt-set_variable",
+        "body": "{%- set ${1:var} = ${2:value} -%}",
+        "description": "Jinja set variable"
+    },
+    "set block": {
+        "prefix": "dbt-set_block",
+        "body": [
+            "{% set ${1:name} %}",
+            "  $2",
+            "{% endset %}"
+        ]
+    },
+    "config table_block": {
+        "prefix": "dbt-config_table",
+        "body": [
+            "{{",
+            "  config(",
+            "    materialized = '${1:table}',",
+            "    )",
+            "}}"
+        ],
+        "description": "dbt config block"
+    },
+
+    "config view_block": {
+        "prefix": "dbt-config_view",
+        "body": [
+            "{{",
+            "  config(",
+            "    materialized = '${1:view}',",
+            "    )",
+            "}}"
+        ],
+        "description": "dbt config block"
+    },
+
+    "config temp table block": {
+        "prefix": "dbt-config_dbt_build_temp",
+        "body": [
+            "{{",
+            "  config(",
+            "    materialized = '${1:table}',",
+            "    schema = '${2:dbt_build_temp}'",
+            "    )",
+            "}}"
+        ],
+        "description": "dbt config block"
+    },
+    "config incremental block": {
+        "prefix": "dbt-config_incremental",
+        "body": [
+            "{{",
+            "  config(",
+            "    materialized = 'incremental',",
+            "    unique_key = '${1:id}'",
+            "    )",
+            "}}"
+        ],
+        "description": "dbt incremental config block"
+    },
+    "call an env var": {
+        "prefix": "dbt-call_env_var",
+        "body": [
+            "{{ env_var(\"${1:env_var_name}\") }}"
+        ],
+        "description": "Env Var"
+    },
+    "load result": {
+        "prefix": "dbt-load_result",
+        "body": [
+            "load_result('${1:statement_name}')"
+        ],
+        "description": "load result"
+    },
+    "log": {
+        "prefix": "dbt-log",
+        "body": [
+            "{{ log(${1:var}, info=${2|True,False|}) }}"
+        ],
+        "description": "Log"
+    },
+    "statement": {
+        "prefix": "dbt-statement",
+        "body": [
+            "{% call statement(${1:name}, fetch_result=${2|True,False|}) %}",
+            "  ${3:select 1}",
+            "{% endcall %}"
+        ],
+        "description": "statement"
+    },
+    "Ref": {
+        "prefix": "dbt-ref_model",
+        "body": [
+            "{{ ref('${1:model_name}') }}"
+        ],
+        "description": "reference a model"
+    },
+    "Return": {
+        "prefix": "dbt-return",
+        "body": [
+            "{{ return(${1}) }}"
+        ],
+        "description": "Return"
+    },
+    "Var": {
+        "prefix": "dbt-var",
+        "body": [
+            "{{ var('${1:var_name}') }}"
+        ],
+        "description": "Var"
+    },
+    "Source": {
+        "prefix": "dbt-ref_source",
+        "body": [
+            "{{ source('${1:source}', '${2:table_name}') }}"
+        ],
+        "description": "reference a source"
+    },
+    "Incremental in-line block": {
+        "prefix": "dbt-is_incremental",
+        "body": [
+            "{% if is_incremental() %}",
+            "  and ${1:prefix}.${2:date_col} >= coalesce((select max(${2:date_col}) from {{ this }}), '1900-01-01')",
+            "{% endif %}"
+        ],
+        "description": "Incremental DBT Block"
+    }
+}
