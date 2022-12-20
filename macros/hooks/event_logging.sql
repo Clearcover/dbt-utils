@@ -5,9 +5,9 @@
 {% macro default__get_audit_schema() %}
 
     {%- if target.name in ['prod', 'uat'] -%}
-        {{ return('dbt_logging') }}      
+        {{ return('bi_operations') }}      
     {%- else -%}
-        {{ return(target.schema~'_dbt_logging') }}
+        {{ return(target.schema~'_bi_operations') }}
     {%- endif -%}
 
 {% endmacro %}
