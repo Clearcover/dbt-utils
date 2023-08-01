@@ -228,8 +228,7 @@ dbt run-operation compare_objects --args "{comparison_schema: dbt_kevin, object_
 			
 			select 
 					case
-            			when a.{{ column_name }} = b.{{ column_name }} then 'perfect match'
-            			when a.{{ column_name }} is null and b.{{ column_name }} is null then 'both are null'
+            			when equal_null(a.{{ column_name }}, b.{{ column_name }}) then 'perfect match'
             			when a.cv_primary_key is null then 'missing from original'
             			when b.cv_primary_key is null then 'missing from comparison'
             			when a.{{ column_name }} is null then 'value is null in original only'
