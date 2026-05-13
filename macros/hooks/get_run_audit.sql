@@ -47,11 +47,12 @@ This macro gets back a dictionary like:
 
 {% for result in results %}
 
-    {% if result.skipped == False %}
+    {% if result.status != 'skipped' %}
 
         {% set model_result={} %}
         {% set materialization = result.node.config.get("materialized", "") %}
         {% set warehouse = result.node.config.get("snowflake_warehouse", "") %}
+        {% set adapter_resp = result.adapter_response or {} %}
 
         {% do model_result.update({'name': result.node.name}) %}
         {% do model_result.update({'unique_id': result.node.unique_id}) %}
@@ -64,21 +65,21 @@ This macro gets back a dictionary like:
         {% do model_result.update({'status': result.status}) %}
         {% do model_result.update({'message': result.message or ''}) %}
         {% do model_result.update({'execution_time': result.execution_time}) %}
-        {% do model_result.update({'rows_affected': result.adapter_response.get('rows_affected', '') }) %}
-        {% do model_result.update({'query_id': result.adapter_response.get('query_id', '') }) %}
+        {% do model_result.update({'rows_affected': adapter_resp.get('rows_affected', '') }) %}
+        {% do model_result.update({'query_id': adapter_resp.get('query_id', '') }) %}
         {% do model_result.update({'thread_id': result.thread_id}) %}
-        {% do model_result.update({'tags': result.node.tags}) %}
+        {% do model_result.update({'tags': result.node.tags | list | tojson}) %}
         {% do model_result.update({'failures': result.failures or ''}) %}
         {% do model_result.update({'invocation_id': invocation_id}) %}
 
+        {% set timing_result = {'started_at': '', 'completed_at': ''} %}
         {% for timing in result.timing %}
             {% if timing['name'] == 'execute' %}
-                {% set timing_result={} %}
                 {% do timing_result.update({'started_at': timing['started_at'].strftime("%Y-%m-%d %H:%M:%S:%f") }) %}
                 {% do timing_result.update({'completed_at': timing['completed_at'].strftime("%Y-%m-%d %H:%M:%S:%f") }) %}
-                {% do model_result.update({'timing': timing_result}) %}
             {% endif %}
         {% endfor %}
+        {% do model_result.update({'timing': timing_result}) %}
 
         {% do run_results.append(model_result) %}
 
