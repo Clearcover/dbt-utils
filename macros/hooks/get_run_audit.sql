@@ -9,21 +9,16 @@ This macro gets back a dictionary like:
         'run_results': [
             {
                 'name': 'stg_customers',
-                'unique_id': 'model.jaffle_shop.stg_customers',
-                'resource_type': 'model',
                 'package': 'jaffle_shop',
-                'schema': 'jaffle_shop',
-                'database': 'analytics',
-                'materialized': 'table',
-                'warehouse': 'transforming',
-                'status': 'success',
-                'message': 'CREATE TABLE',
-                'execution_time': 1.23,
-                'rows_affected': 500,
-                'thread_id': 'Thread-1',
-                'tags': ['daily', 'external_reporting'],
+                'resource_type': 'model',
+                'schema': 'jaffle_shop_dev',
+                'materialized': 'view',
                 'failures': '',
-                'invocation_id': 'abc-123',
+                'warehouse': 'TRANSFORMING',
+                'invocation_id': '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+                'query_id': '01abc2de-0301-f456-0000-7890abcd1234',
+                'tags': 'daily,finance',
+                'thread_id': 'Thread-1',
                 'timing': {
                     'started_at': '2019-05-03 22:20:16:315020',
                     'completed_at': '2019-05-03 22:20:16:716081'
@@ -43,45 +38,45 @@ This macro gets back a dictionary like:
  #}
 {% set run_audit={} %}
 
+-- add the run results to the run audit
 {% set run_results=[] %}
 
+-- for each result
 {% for result in results %}
 
-    {% if result.status != 'skipped' %}
+    -- only include passed models (is this the best way to find it?)
+    {% if not result.error and result.skipped == False %}
 
         {% set model_result={} %}
-        {% set materialization = result.node.config.get("materialized", "") %}
-        {% set warehouse = result.node.config.get("snowflake_warehouse", "") %}
-        {% set adapter_resp = result.adapter_response or {} %}
-
+        -- Get the materelizaed type of our model, View, Incremental etc.
+        {%- set materialization = result.node.config.get("materialized", "") -%}
+        {%- set warehouse = result.node.config.get("snowflake_warehouse", "") -%}
+        {%- set adapter_resp = result.adapter_response or {} -%}
+        
         {% do model_result.update({'name': result.node.name}) %}
-        {% do model_result.update({'unique_id': result.node.unique_id}) %}
-        {% do model_result.update({'resource_type': result.node.resource_type}) %}
         {% do model_result.update({'package': result.node.package_name}) %}
+        {% do model_result.update({'resource_type': result.node.resource_type.value}) %}
+        -- Schema the model belongs to
         {% do model_result.update({'schema': result.node.schema}) %}
-        {% do model_result.update({'database': result.node.database}) %}
         {% do model_result.update({'materialized': materialization}) %}
-        {% do model_result.update({'warehouse': warehouse or ''}) %}
-        {% do model_result.update({'status': result.status}) %}
-        {% do model_result.update({'message': result.message or ''}) %}
-        {% do model_result.update({'execution_time': result.execution_time}) %}
-        {% do model_result.update({'rows_affected': adapter_resp.get('rows_affected', '') }) %}
-        {% do model_result.update({'query_id': adapter_resp.get('query_id', '') }) %}
-        {% do model_result.update({'thread_id': result.thread_id}) %}
-        {% do model_result.update({'tags': result.node.tags | list | tojson}) %}
         {% do model_result.update({'failures': result.failures or ''}) %}
+        {% do model_result.update({'warehouse': warehouse or ''}) %}
         {% do model_result.update({'invocation_id': invocation_id}) %}
-
-        {% set timing_result = {'started_at': '', 'completed_at': ''} %}
+        {% do model_result.update({'query_id': adapter_resp.get('query_id', '') }) %}
+        {% do model_result.update({'tags': result.node.tags | list | join(',')}) %}
+        {% do model_result.update({'thread_id': result.thread_id}) %}
+        
         {% for timing in result.timing %}
             {% if timing['name'] == 'execute' %}
+                {% set timing_result={} %}
+
                 {% do timing_result.update({'started_at': timing['started_at'].strftime("%Y-%m-%d %H:%M:%S:%f") }) %}
                 {% do timing_result.update({'completed_at': timing['completed_at'].strftime("%Y-%m-%d %H:%M:%S:%f") }) %}
+                {% do model_result.update({'timing': timing_result}) %}
             {% endif %}
         {% endfor %}
-        {% do model_result.update({'timing': timing_result}) %}
 
-        {% do run_results.append(model_result) %}
+    {% do run_results.append(model_result) %}
 
     {% endif %}
 
